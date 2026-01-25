@@ -9,7 +9,6 @@ const Donations = () => {
   const [projects, setProjects] = useState<DonationProject[]>([]);
   const [contributions, setContributions] = useState<DonationContribution[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingProjects, setLoadingProjects] = useState(false);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState<DonationProject | null>(null);
@@ -39,17 +38,6 @@ const Donations = () => {
     }
   };
 
-  const loadProjects = async () => {
-    setLoadingProjects(true);
-    try {
-      const data = await donationService.getProjects();
-      setProjects(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Erreur lors du chargement des projets');
-    } finally {
-      setLoadingProjects(false);
-    }
-  };
 
   const handleSelectProject = (project: DonationProject) => {
     setSelectedProject(project);
@@ -73,7 +61,7 @@ const Donations = () => {
     setSubmitting(true);
 
     try {
-      const response = await donationService.contribute({
+      await donationService.contribute({
         project_id: selectedProject.id,
         montant: parseFloat(formData.amount),
         nom_sadaqa: formData.nom_sadaqa || undefined,
@@ -169,7 +157,7 @@ const Donations = () => {
           {!selectedProject ? (
             <div>
               <p className="text-gray-600 mb-4">Choisissez un projet auquel contribuer :</p>
-              {loadingProjects ? (
+              {loading ? (
                 <p className="text-center py-4 text-gray-500">Chargement...</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">

@@ -5,7 +5,6 @@ import { useAuth } from '../hooks/useAuth';
 import type { TherapySlot, User, AppointmentPersonData } from '../types';
 import Button from '../components/Button';
 import Error from '../components/Error';
-import Loading from '../components/Loading';
 
 type PersonGroup = {
   sexe: 'homme' | 'femme';
@@ -17,7 +16,6 @@ const NewAppointment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const [therapists, setTherapists] = useState<User[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
@@ -64,8 +62,8 @@ const NewAppointment = () => {
 
   const loadTherapists = async () => {
     try {
-      const data = await appointmentService.getTherapists();
-      setTherapists(data);
+      await appointmentService.getTherapists();
+      // Les thérapeutes ne sont plus nécessaires car on charge directement les slots disponibles
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erreur lors du chargement des thérapeutes');
     }

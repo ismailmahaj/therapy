@@ -224,7 +224,7 @@ const RecurringAvailabilityPage = () => {
                     <h3 className="text-lg font-semibold text-gray-900">
                       {dayNames[availability.day_of_week === 0 ? 7 : availability.day_of_week]} - {availability.start_time} à {availability.end_time}
                     </h3>
-                    {availability.is_active ? (
+                    {availability.valid_from && (!availability.valid_until || new Date(availability.valid_until) > new Date()) ? (
                       <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Actif
                       </span>

@@ -16,7 +16,7 @@ import MySlots from '../pages/therapy/MySlots';
 import RecurringAvailability from '../pages/therapy/RecurringAvailability';
 import TherapyAppointments from '../pages/therapy/TherapyAppointments';
 import CalendarView from '../pages/therapy/CalendarView';
-import TherapistProfile from '../pages/therapy/TherapistProfile';
+import TherapistProfilePage from '../pages/therapy/TherapistProfile';
 import AppointmentCalendar from '../pages/AppointmentCalendar';
 import ClientProfile from '../pages/ClientProfile';
 import DonationProfile from '../pages/donation/DonationProfile';
@@ -237,7 +237,7 @@ const AppRouter = () => {
           element={
             <TherapyRoute>
               <Layout>
-                <TherapistProfile />
+                <TherapistProfilePage />
               </Layout>
             </TherapyRoute>
           }

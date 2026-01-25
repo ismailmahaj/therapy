@@ -14,11 +14,10 @@ interface TherapyCalendarProps {
   onSlotClick?: (slot: TherapySlot) => void;
   onDateClick?: (date: Date) => void;
   onSelect?: (start: Date, end: Date) => void;
-  onRefresh?: () => void;
   view?: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay';
 }
 
-const TherapyCalendar = ({ onSlotClick, onDateClick, onSelect, onRefresh, view = 'dayGridMonth' }: TherapyCalendarProps) => {
+const TherapyCalendar = ({ onSlotClick, onDateClick, onSelect, view = 'dayGridMonth' }: TherapyCalendarProps) => {
   const [slots, setSlots] = useState<TherapySlot[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,7 +106,6 @@ const TherapyCalendar = ({ onSlotClick, onDateClick, onSelect, onRefresh, view =
       
       // Compter les rendez-vous pour ce slot
       const slotAppointments = appointments.filter(a => a.slot_id === slot.id);
-      const confirmedCount = slotAppointments.filter(a => a.statut === 'confirmed').length;
       
       // Couleur selon le statut
       let color = '#3b82f6'; // Bleu par défaut (available)

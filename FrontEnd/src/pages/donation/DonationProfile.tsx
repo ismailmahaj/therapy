@@ -59,7 +59,12 @@ const DonationProfile = () => {
     setSaving(true);
 
     try {
-      const updatedUser = await profileService.updateProfile(formData);
+      // Filtrer les champs vides avant l'envoi
+      const dataToSend: any = { ...formData };
+      if (!dataToSend.sexe || dataToSend.sexe === '') {
+        delete dataToSend.sexe;
+      }
+      const updatedUser = await profileService.updateProfile(dataToSend);
       setUser(updatedUser);
       
       // Recharger les données utilisateur dans le contexte

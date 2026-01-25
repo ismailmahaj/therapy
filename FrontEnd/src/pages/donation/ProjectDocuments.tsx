@@ -82,17 +82,17 @@ const ProjectDocuments = () => {
     }
   };
 
-  const handleDownload = async (document: DonationDocument) => {
+  const handleDownload = async (doc: DonationDocument) => {
     try {
-      const blob = await donationProjectService.downloadDocument(document.id);
+      const blob = await donationProjectService.downloadDocument(doc.id);
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = window.document.createElement('a');
       a.href = url;
-      a.download = document.file_name;
-      document.body.appendChild(a);
+      a.download = doc.file_name;
+      window.document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      window.document.body.removeChild(a);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erreur lors du téléchargement');
     }

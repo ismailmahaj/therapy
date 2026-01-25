@@ -24,6 +24,32 @@ export type CreateTherapistProfileData = {
   autres_types?: string;
 };
 
+export type RecurringAvailability = {
+  id: number;
+  therapy_user_id: number;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  slot_duration_minutes: number;
+  max_clients_per_slot: number;
+  price_per_slot?: string;
+  valid_from?: string;
+  valid_until?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateRecurringAvailabilityData = {
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  slot_duration_minutes: number;
+  max_clients_per_slot: number;
+  price_per_slot?: number;
+  valid_from?: string;
+  valid_until?: string;
+};
+
 export const therapyService = {
   // Gestion des créneaux
   getSlots: async (params?: {
@@ -109,15 +135,15 @@ export const therapyService = {
   },
 
   // Disponibilités récurrentes
-  getRecurringAvailabilities: async (): Promise<any[]> => {
-    const response = await api.get<{ availabilities: any[] }>(
+  getRecurringAvailabilities: async (): Promise<RecurringAvailability[]> => {
+    const response = await api.get<{ availabilities: RecurringAvailability[] }>(
       '/therapy/calendar/recurring-availabilities'
     );
     return response.data.availabilities;
   },
 
-  createRecurringAvailability: async (data: any): Promise<any> => {
-    const response = await api.post<{ message: string; availability: any }>(
+  createRecurringAvailability: async (data: CreateRecurringAvailabilityData): Promise<RecurringAvailability> => {
+    const response = await api.post<{ message: string; availability: RecurringAvailability }>(
       '/therapy/calendar/recurring-availabilities',
       data
     );
@@ -126,9 +152,9 @@ export const therapyService = {
 
   updateRecurringAvailability: async (
     id: number,
-    data: any
-  ): Promise<any> => {
-    const response = await api.patch<{ message: string; availability: any }>(
+    data: CreateRecurringAvailabilityData
+  ): Promise<RecurringAvailability> => {
+    const response = await api.patch<{ message: string; availability: RecurringAvailability }>(
       `/therapy/calendar/recurring-availabilities/${id}`,
       data
     );

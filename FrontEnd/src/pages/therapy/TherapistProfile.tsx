@@ -5,7 +5,7 @@ import Button from '../../components/Button';
 import Error from '../../components/Error';
 import Loading from '../../components/Loading';
 
-const TherapistProfile = () => {
+const TherapistProfilePage = () => {
   const [profile, setProfile] = useState<TherapistProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -296,4 +296,4 @@ const TherapistProfile = () => {
   );
 };
 
-export default TherapistProfile;
+export default TherapistProfilePage;
