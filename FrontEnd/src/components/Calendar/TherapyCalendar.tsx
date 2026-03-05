@@ -100,7 +100,9 @@ const TherapyCalendar = ({ onSlotClick, onDateClick, onSelect, view = 'dayGridMo
       
       // Vérifier que les dates sont valides
       if (isNaN(date.getTime()) || isNaN(endDate.getTime())) {
-        console.warn('Date invalide pour le slot:', slot);
+        if (import.meta.env.DEV) {
+          console.warn('Date invalide pour le slot:', slot);
+        }
         return null;
       }
       

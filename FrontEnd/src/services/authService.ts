@@ -28,7 +28,9 @@ export const authService = {
     try {
       await api.post('/logout');
     } catch (error) {
-      console.error('Logout error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Logout error:', error);
+      }
     } finally {
       tokenStorage.remove();
       userStorage.remove();

@@ -53,7 +53,9 @@ const ClientCalendar = ({ therapistId, onSlotSelect }: ClientCalendarProps) => {
 
   const handleDateClick = (arg: any) => {
     // Optionnel : créer un créneau rapide
-    console.log('Date cliquée:', arg.date);
+    if (import.meta.env.DEV) {
+      console.log('Date cliquée:', arg.date);
+    }
   };
 
   if (loading) return <Loading />;
@@ -84,7 +86,9 @@ const ClientCalendar = ({ therapistId, onSlotSelect }: ClientCalendarProps) => {
       
       // Vérifier que les dates sont valides
       if (isNaN(date.getTime()) || isNaN(endDate.getTime())) {
-        console.warn('Date invalide pour le slot:', slot);
+        if (import.meta.env.DEV) {
+          console.warn('Date invalide pour le slot:', slot);
+        }
         return null;
       }
       

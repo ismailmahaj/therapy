@@ -60,7 +60,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const currentUser = await authService.me();
       setUser(currentUser);
     } catch (error) {
-      console.error('Error refreshing user:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error refreshing user:', error);
+      }
     }
   };
 
