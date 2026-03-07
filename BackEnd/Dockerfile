@@ -1,7 +1,7 @@
-# Dockerfile optimisé pour Laravel Backend
-FROM php:8.2-fpm-alpine AS base
+# Dockerfile Laravel Backend (PHP 8.2 FPM + Nginx + Supervisor)
+FROM php:8.2-fpm-alpine
 
-# Variables d'environnement pour OPcache
+# --- Variables d'environnement PHP / OPcache ---
 ENV PHP_OPCACHE_ENABLE=1 \
     PHP_OPCACHE_MEMORY_CONSUMPTION=128 \
     PHP_OPCACHE_INTERNED_STRINGS_BUFFER=8 \
@@ -9,67 +9,108 @@ ENV PHP_OPCACHE_ENABLE=1 \
     PHP_OPCACHE_REVALIDATE_FREQ=2 \
     PHP_OPCACHE_FAST_SHUTDOWN=1
 
-# Installation des dépendances système et build
+# --- Installation des dépendances runtime ---
 RUN apk add --no-cache \
-        git curl bash shadow supervisor nginx netcat-openbsd nodejs npm \
-        libpng libjpeg-turbo freetype libzip oniguruma icu \
-    && apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS \
-        libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev oniguruma-dev icu-dev pcre-dev \
-    \
-    # Installation des extensions PHP
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    git \
+    curl \
+    zip \
+    unzip \
+    bash \
+    shadow \
+    supervisor \
+    nginx \
+    nodejs \
+    npm \
+    mysql-client \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
+    oniguruma \
+    icu \
+    zlib
+
+# --- Installation des dépendances de build (pour extensions PHP) ---
+RUN apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    icu-dev \
+    oniguruma-dev \
+    libzip-dev \
+    pcre-dev
+
+# --- Configuration GD et installation des extensions PHP ---
+RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install -j$(nproc) \
-        pdo pdo_mysql mysqli gd zip mbstring exif pcntl bcmath opcache intl sockets \
-    \
-    # Installation Redis
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    \
-    # Nettoyage des dépendances de build pour réduire la taille de l'image
-    && apk del .build-deps \
+        pdo \
+        pdo_mysql \
+        mysqli \
+        gd \
+        zip \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        opcache \
+        intl \
+        sockets
+
+# --- Installation de Redis ---
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+# --- Nettoyage des dépendances de build ---
+RUN apk del .build-deps \
     && rm -rf /tmp/* /var/cache/apk/*
 
-# Installation de Composer
+# --- Installation de Composer ---
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Création de l'utilisateur www
+# --- Création utilisateur www ---
 RUN addgroup -g 1000 www \
     && adduser -u 1000 -D -G www -s /bin/bash www
 
-# Répertoire de travail
+# --- Répertoire de travail ---
 WORKDIR /var/www/html
 
-# Copie des fichiers Laravel et définition des permissions
+# --- Copie des fichiers Laravel ---
 COPY --chown=www:www . /var/www/html
-RUN mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache \
-    && chown -R www:www storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
 
-# Installation des dépendances PHP et Node.js (si package.json existe)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
-    && if [ -f "package.json" ]; then npm install && npm run build; fi
+# --- Installation des dépendances PHP ---
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-# Configuration PHP et OPcache
+# --- Installation Node.js (si package.json présent) ---
+RUN if [ -f "package.json" ]; then npm install && npm run build; fi
+
+# --- Configuration PHP-FPM ---
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
-# Configuration Nginx
+# --- Configuration Nginx ---
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/default.conf /etc/nginx/http.d/default.conf
 
-# Configuration Supervisor
+# --- Configuration Supervisor ---
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN mkdir -p /var/log/supervisor
 
-# Script d'entrée
+# --- Création répertoires storage et bootstrap/cache ---
+RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} \
+    && mkdir -p /var/www/html/storage/logs \
+    && mkdir -p /var/www/html/bootstrap/cache \
+    && chown -R www:www /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# --- Entrypoint Laravel Docker ---
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Exposition du port
+# --- Exposition port ---
 EXPOSE 80
 
-# Entrypoint et CMD
+# --- Entrypoint et CMD ---
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
