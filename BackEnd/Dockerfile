@@ -52,7 +52,6 @@ RUN docker-php-ext-install -j$(nproc) \
     pcntl \
     bcmath \
     opcache \
-    intl \
     sockets
 
 # --- Installation de GD ---
