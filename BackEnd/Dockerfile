@@ -30,8 +30,7 @@ RUN apk add --no-cache \
     freetype \
     libzip \
     oniguruma \
-    icu \
-    postgresql-libs
+    icu
 
 # Installation des dépendances de build (seront supprimées après)
 RUN apk add --no-cache --virtual .build-deps \
@@ -42,15 +41,14 @@ RUN apk add --no-cache --virtual .build-deps \
     libzip-dev \
     oniguruma-dev \
     icu-dev \
-    postgresql-dev \
     pcre-dev
 
 # Installation des extensions PHP nécessaires pour Laravel
+# Note: Compilation en une seule commande pour optimiser le cache Docker
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_mysql \
-    pdo_pgsql \
     mysqli \
     gd \
     zip \
