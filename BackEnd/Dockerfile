@@ -44,18 +44,18 @@ RUN apk add --no-cache --virtual .build-deps \
 # --- Configuration GD et installation des extensions PHP ---
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_mysql \
-        mysqli \
-        gd \
-        zip \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        opcache \
-        intl \
-        sockets
+    pdo \
+    pdo_mysql \
+    mysqli \
+    gd \
+    zip \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    opcache \
+    intl \
+    sockets
 
 # --- Installation de Redis ---
 RUN pecl install redis \
