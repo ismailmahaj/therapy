@@ -11,19 +11,12 @@ ENV PHP_OPCACHE_MAX_ACCELERATED_FILES=4000
 ENV PHP_OPCACHE_REVALIDATE_FREQ=2
 ENV PHP_OPCACHE_FAST_SHUTDOWN=1
 
-# Installation des dépendances système
+# Installation des dépendances système (runtime + build)
 RUN apk add --no-cache \
     git \
     curl \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
     zip \
     unzip \
-    oniguruma-dev \
-    icu-dev \
-    postgresql-dev \
     mysql-client \
     nodejs \
     npm \
@@ -31,7 +24,26 @@ RUN apk add --no-cache \
     shadow \
     supervisor \
     nginx \
-    netcat-openbsd
+    netcat-openbsd \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
+    oniguruma \
+    icu \
+    postgresql-libs
+
+# Installation des dépendances de build (seront supprimées après)
+RUN apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    oniguruma-dev \
+    icu-dev \
+    postgresql-dev \
+    pcre-dev
 
 # Installation des extensions PHP nécessaires pour Laravel
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -51,10 +63,12 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     sockets
 
 # Installation de Redis extension
-RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && apk del pcre-dev $PHPIZE_DEPS
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+# Nettoyage : suppression des dépendances de build pour réduire la taille de l'image
+RUN apk del .build-deps \
+    && rm -rf /tmp/* /var/cache/apk/*
 
 # Installation de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
