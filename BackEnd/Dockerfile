@@ -1,3 +1,8 @@
+# Dockerfile Laravel Backend (PHP 8.2 FPM + Nginx + Supervisor)
+FROM php:8.2-fpm-alpine
+
+# --- Variables d'environnement PHP / OPcache ---
+ENV PHP_OPCACHE_ENABLE=1 \
 # --- Installation des dépendances de build (pour extensions PHP) ---
     RUN apk add --no-cache --virtual .build-deps \
     $PHPIZE_DEPS \
