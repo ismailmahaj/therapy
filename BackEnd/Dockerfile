@@ -42,7 +42,7 @@ RUN apk add --no-cache --virtual .build-deps \
     pcre-dev
 
 # --- Configuration GD et installation des extensions PHP ---
-RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_mysql \
