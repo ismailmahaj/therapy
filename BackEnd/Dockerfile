@@ -3,43 +3,6 @@ FROM php:8.2-fpm-alpine
 
 # --- Variables d'environnement PHP / OPcache ---
 ENV PHP_OPCACHE_ENABLE=1 \
-# --- Installation des dépendances de build (pour extensions PHP) ---
-    RUN apk add --no-cache --virtual .build-deps \
-    $PHPIZE_DEPS \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    icu-dev \
-    oniguruma-dev \
-    libzip-dev \
-    pcre-dev
-
-# --- Configuration GD et installation des extensions PHP ---
-RUN docker-php-ext-configure gd \
-    && docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_mysql \
-    mysqli \
-    gd \
-    zip \
-    mbstring \
-    exif \
-    pcntl \
-    bcmath \
-    opcache \
-    intl \
-    sockets
-J'ai enlevé les flags --with-freetype et --with-jpeg. Laisse docker-php-ext-configure les détecter automatiquement.
-
-Si ça échoue encore, envoie-moi le message d'erreur complet (pas juste "exit code: 2").
-
-refais moi le fichier complet
-
-# Dockerfile Laravel Backend (PHP 8.2 FPM + Nginx + Supervisor)
-FROM php:8.2-fpm-alpine
-
-# --- Variables d'environnement PHP / OPcache ---
-ENV PHP_OPCACHE_ENABLE=1 \
     PHP_OPCACHE_MEMORY_CONSUMPTION=128 \
     PHP_OPCACHE_INTERNED_STRINGS_BUFFER=8 \
     PHP_OPCACHE_MAX_ACCELERATED_FILES=4000 \
