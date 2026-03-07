@@ -42,12 +42,10 @@ RUN apk add --no-cache --virtual .build-deps \
     pcre-dev
 
 # --- Configuration GD et installation des extensions PHP ---
-RUN docker-php-ext-configure gd \
-    && docker-php-ext-install -j$(nproc) \
+RUN docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_mysql \
     mysqli \
-    gd \
     zip \
     mbstring \
     exif \
@@ -56,6 +54,14 @@ RUN docker-php-ext-configure gd \
     opcache \
     intl \
     sockets
+
+# --- Installation de GD séparément ---
+RUN apk add --no-cache --virtual .gd-deps \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    && docker-php-ext-install gd \
+    && apk del .gd-deps
 
 # --- Installation de Redis ---
 RUN pecl install redis \
