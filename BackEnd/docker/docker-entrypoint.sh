@@ -77,6 +77,13 @@ chmod -R 775 /var/www/html/bootstrap/cache 2>/dev/null || true
 mkdir -p /var/log/supervisor
 chmod 755 /var/log/supervisor
 
+# Injecter le port dynamique dans la configuration Nginx (pour Railway)
+if [ -n "$PORT" ]; then
+    echo "🔌 Configuration du port Nginx: $PORT"
+    sed -i "s/listen \${PORT:-80};/listen $PORT;/" /etc/nginx/http.d/default.conf || \
+    sed -i "s/listen 80;/listen $PORT;/" /etc/nginx/http.d/default.conf
+fi
+
 echo "✅ Configuration terminée!"
 
 # Exécuter la commande passée en argument (généralement Supervisor qui doit être root)

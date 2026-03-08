@@ -19,6 +19,7 @@ RUN apk add --no-cache \
     shadow \
     supervisor \
     nginx \
+    netcat-openbsd \
     nodejs \
     npm \
     mysql-client \
@@ -52,10 +53,12 @@ RUN docker-php-ext-install -j$(nproc) \
     pcntl \
     bcmath \
     opcache \
+    intl \
     sockets
 
-# --- Installation de GD ---
-RUN docker-php-ext-configure gd && docker-php-ext-install gd
+# --- Installation de GD (avec support freetype et jpeg) ---
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd
 
 # --- Installation de Redis ---
 RUN pecl install redis \
@@ -108,8 +111,9 @@ RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} \
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# --- Exposition port ---
+# --- Exposition port (Railway utilise $PORT dynamiquement) ---
 EXPOSE 80
+ENV PORT=80
 
 # --- Entrypoint et CMD ---
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
