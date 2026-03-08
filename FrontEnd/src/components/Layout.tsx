@@ -149,7 +149,7 @@ const Layout = ({ children }: LayoutProps) => {
       </header>
 
       <div className="flex relative">
-        {/* Sidebar - Desktop */}
+        {/* Sidebar - Desktop (toujours visible sur lg+) */}
         <aside className="hidden lg:block w-64 bg-white shadow-sm min-h-[calc(100vh-4rem)] sticky top-16">
           <nav className="p-4">
             <ul className="space-y-2">
@@ -175,7 +175,7 @@ const Layout = ({ children }: LayoutProps) => {
           </nav>
         </aside>
 
-        {/* Sidebar - Mobile (Overlay) */}
+        {/* Sidebar - Mobile (Overlay, caché par défaut) */}
         {sidebarOpen && (
           <>
             <div 
@@ -210,8 +210,8 @@ const Layout = ({ children }: LayoutProps) => {
           </>
         )}
 
-        {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full min-w-0">
+        {/* Main Content - Prend toute la largeur sur mobile quand sidebar fermé */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full min-w-0 lg:ml-0">
           {children}
         </main>
       </div>
