@@ -22,7 +22,14 @@ return [
     'allowed_origins' => [
         env('FRONTEND_URL', 'http://localhost:5173'),
         env('APP_URL', 'http://localhost:8000'),
+        // Permettre toutes les origines Railway (pour développement/test)
+        ...(env('APP_ENV') === 'production' ? [] : ['*']),
     ],
+    
+    // En production, utiliser FRONTEND_URL ou permettre toutes les origines Railway
+    'allowed_origins_patterns' => env('APP_ENV') === 'production' 
+        ? ['#^https://.*\.up\.railway\.app$#'] 
+        : [],
 
     'allowed_origins_patterns' => [],
 

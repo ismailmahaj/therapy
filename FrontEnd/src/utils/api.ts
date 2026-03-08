@@ -5,6 +5,25 @@ import { tokenStorage, clearStorage } from './jwt';
 // En production, doit être une URL HTTPS publique
 let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
+// Correction automatique : ajouter https:// si manquant et /api si manquant
+if (import.meta.env.PROD && API_BASE_URL) {
+  // Ajouter https:// si manquant (priorité à la correction)
+  if (!API_BASE_URL.startsWith('https://') && !API_BASE_URL.startsWith('http://')) {
+    API_BASE_URL = `https://${API_BASE_URL}`;
+    console.warn('⚠️ https:// ajouté automatiquement à VITE_API_URL');
+  }
+  
+  // Ajouter /api si manquant
+  if (!API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
+    if (API_BASE_URL.endsWith('/')) {
+      API_BASE_URL = `${API_BASE_URL}api`;
+    } else {
+      API_BASE_URL = `${API_BASE_URL}/api`;
+    }
+    console.warn('⚠️ /api ajouté automatiquement à VITE_API_URL');
+  }
+}
+
 // Détection et correction automatique des URLs internes Railway en production
 if (import.meta.env.PROD) {
   // Détecter les URLs internes Railway
