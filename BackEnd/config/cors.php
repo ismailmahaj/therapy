@@ -28,9 +28,11 @@ return [
         env('APP_ENV') !== 'production' ? 'http://localhost:5173' : null,
         env('APP_ENV') !== 'production' ? 'http://localhost:8000' : null,
     ]),
-  
+    
     // Permettre toutes les origines Railway en production
- 
+    'allowed_origins_patterns' => [
+        '#^https://.*\.up\.railway\.app$#',
+    ],
 
     'allowed_headers' => ['*'],
 
