@@ -86,26 +86,43 @@ WORKDIR /var/www/html
 COPY --chown=www:www composer.json composer.lock* ./
 
 # --- Installation des dépendances PHP (avec gestion d'erreurs améliorée) ---
-RUN set -eux; \
-    php -d memory_limit=512M /usr/bin/composer clear-cache || true; \
-    php -d memory_limit=512M /usr/bin/composer install \
+RUN echo "📦 Vérification des fichiers Composer..." && \
+    ls -la composer.json && \
+    if [ -f composer.lock ]; then \
+        echo "✅ composer.lock trouvé, utilisation de composer install"; \
+        INSTALL_CMD="install"; \
+    else \
+        echo "⚠️ composer.lock non trouvé, utilisation de composer update"; \
+        INSTALL_CMD="update"; \
+    fi && \
+    echo "🧹 Nettoyage du cache Composer..." && \
+    php -d memory_limit=512M /usr/bin/composer clear-cache || true && \
+    echo "📥 Installation des dépendances Composer (tentative 1)..." && \
+    (php -d memory_limit=512M /usr/bin/composer $INSTALL_CMD \
         --no-dev \
         --optimize-autoloader \
         --no-interaction \
         --prefer-dist \
         --no-scripts \
-        --ignore-platform-reqs || \
-    (echo "⚠️ Première tentative échouée, nouvelle tentative avec retry..." && \
+        --ignore-platform-reqs \
+        --no-progress \
+        --ansi || \
+    (echo "⚠️ Première tentative échouée, nettoyage et nouvelle tentative..." && \
      php -d memory_limit=512M /usr/bin/composer clear-cache && \
-     sleep 2 && \
-     php -d memory_limit=512M /usr/bin/composer install \
+     sleep 5 && \
+     echo "📥 Installation des dépendances Composer (tentative 2)..." && \
+     php -d memory_limit=512M /usr/bin/composer $INSTALL_CMD \
          --no-dev \
          --optimize-autoloader \
          --no-interaction \
          --prefer-dist \
          --no-scripts \
-         --ignore-platform-reqs); \
-    php -d memory_limit=512M /usr/bin/composer dump-autoload --optimize --classmap-authoritative
+         --ignore-platform-reqs \
+         --no-progress \
+         --ansi)) && \
+    echo "🔄 Optimisation de l'autoloader..." && \
+    php -d memory_limit=512M /usr/bin/composer dump-autoload --optimize --classmap-authoritative && \
+    echo "✅ Installation Composer terminée avec succès!"
 
 # --- Copie du reste des fichiers Laravel ---
 COPY --chown=www:www . /var/www/html
