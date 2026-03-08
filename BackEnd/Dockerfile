@@ -72,6 +72,9 @@ RUN apk del .build-deps \
 # --- Installation de Composer ---
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# --- Configuration PHP (avant installation Composer pour augmenter mémoire) ---
+COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
+
 # --- Création utilisateur www ---
 RUN addgroup -g 1000 www \
     && adduser -u 1000 -D -G www -s /bin/bash www
@@ -79,19 +82,43 @@ RUN addgroup -g 1000 www \
 # --- Répertoire de travail ---
 WORKDIR /var/www/html
 
-# --- Copie des fichiers Laravel ---
+# --- Copie des fichiers Composer en premier (pour optimiser le cache Docker) ---
+COPY --chown=www:www composer.json composer.lock* ./
+
+# --- Installation des dépendances PHP (avec gestion d'erreurs améliorée) ---
+RUN set -eux; \
+    php -d memory_limit=512M /usr/bin/composer clear-cache || true; \
+    php -d memory_limit=512M /usr/bin/composer install \
+        --no-dev \
+        --optimize-autoloader \
+        --no-interaction \
+        --prefer-dist \
+        --no-scripts \
+        --ignore-platform-reqs || \
+    (echo "⚠️ Première tentative échouée, nouvelle tentative avec retry..." && \
+     php -d memory_limit=512M /usr/bin/composer clear-cache && \
+     sleep 2 && \
+     php -d memory_limit=512M /usr/bin/composer install \
+         --no-dev \
+         --optimize-autoloader \
+         --no-interaction \
+         --prefer-dist \
+         --no-scripts \
+         --ignore-platform-reqs); \
+    php -d memory_limit=512M /usr/bin/composer dump-autoload --optimize --classmap-authoritative
+
+# --- Copie du reste des fichiers Laravel ---
 COPY --chown=www:www . /var/www/html
 
-# --- Installation des dépendances PHP ---
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# --- Configuration PHP-FPM (après copie complète) ---
+COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+COPY docker/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+# --- Exécution des scripts Composer (après copie complète) ---
+RUN php -d memory_limit=512M /usr/bin/composer run-script post-autoload-dump || true
 
 # --- Installation Node.js (si package.json présent) ---
 RUN if [ -f "package.json" ]; then npm install && npm run build; fi
-
-# --- Configuration PHP-FPM ---
-COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
-COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
-COPY docker/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # --- Configuration Nginx ---
 COPY docker/nginx.conf /etc/nginx/nginx.conf
