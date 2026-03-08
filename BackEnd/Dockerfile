@@ -85,44 +85,29 @@ WORKDIR /var/www/html
 # --- Copie des fichiers Composer en premier (pour optimiser le cache Docker) ---
 COPY --chown=www:www composer.json composer.lock* ./
 
-# --- Installation des dépendances PHP (avec gestion d'erreurs améliorée) ---
-RUN echo "📦 Vérification des fichiers Composer..." && \
-    ls -la composer.json && \
-    if [ -f composer.lock ]; then \
-        echo "✅ composer.lock trouvé, utilisation de composer install"; \
-        INSTALL_CMD="install"; \
-    else \
-        echo "⚠️ composer.lock non trouvé, utilisation de composer update"; \
-        INSTALL_CMD="update"; \
-    fi && \
-    echo "🧹 Nettoyage du cache Composer..." && \
-    php -d memory_limit=512M /usr/bin/composer clear-cache || true && \
-    echo "📥 Installation des dépendances Composer (tentative 1)..." && \
-    (php -d memory_limit=512M /usr/bin/composer $INSTALL_CMD \
+# --- Installation des dépendances PHP ---
+RUN echo "🔍 Vérification de Composer..." && \
+    /usr/bin/composer --version && \
+    echo "📦 Installation des dépendances..." && \
+    (php -d memory_limit=512M -d max_execution_time=600 /usr/bin/composer install \
         --no-dev \
         --optimize-autoloader \
         --no-interaction \
         --prefer-dist \
         --no-scripts \
         --ignore-platform-reqs \
-        --no-progress \
-        --ansi || \
-    (echo "⚠️ Première tentative échouée, nettoyage et nouvelle tentative..." && \
-     php -d memory_limit=512M /usr/bin/composer clear-cache && \
-     sleep 5 && \
-     echo "📥 Installation des dépendances Composer (tentative 2)..." && \
-     php -d memory_limit=512M /usr/bin/composer $INSTALL_CMD \
-         --no-dev \
-         --optimize-autoloader \
-         --no-interaction \
-         --prefer-dist \
-         --no-scripts \
-         --ignore-platform-reqs \
-         --no-progress \
-         --ansi)) && \
-    echo "🔄 Optimisation de l'autoloader..." && \
-    php -d memory_limit=512M /usr/bin/composer dump-autoload --optimize --classmap-authoritative && \
-    echo "✅ Installation Composer terminée avec succès!"
+        --prefer-stable || \
+    (echo "❌ Erreur lors de l'installation, tentative avec update..." && \
+     php -d memory_limit=512M -d max_execution_time=600 /usr/bin/composer update \
+        --no-dev \
+        --optimize-autoloader \
+        --no-interaction \
+        --prefer-dist \
+        --no-scripts \
+        --ignore-platform-reqs \
+        --prefer-stable)) && \
+    echo "✅ Dépendances installées avec succès" && \
+    chown -R www:www /var/www/html/vendor /var/www/html/composer.lock 2>/dev/null || true
 
 # --- Copie du reste des fichiers Laravel ---
 COPY --chown=www:www . /var/www/html
