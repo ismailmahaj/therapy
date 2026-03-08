@@ -92,37 +92,37 @@ const Appointments = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Mes Rendez-vous</h1>
-        <Link to="/appointments/new">
-          <Button>Prendre un rendez-vous</Button>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Mes Rendez-vous</h1>
+        <Link to="/appointments/new" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto">Prendre un rendez-vous</Button>
         </Link>
       </div>
 
       {error && <Error message={error} onRetry={loadAppointments} />}
 
       {appointments.length === 0 ? (
-        <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">Aucun rendez-vous</p>
-          <Link to="/appointments/new">
+        <div className="card text-center py-8 sm:py-12">
+          <p className="text-gray-500 mb-4 text-sm sm:text-base">Aucun rendez-vous</p>
+          <Link to="/appointments/new" className="inline-block">
             <Button>Prendre un rendez-vous</Button>
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {appointments.map((appointment) => (
             <div key={appointment.id} className="card">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-4 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0">
+                <div className="flex-1 w-full">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                       {formatDate(appointment.slot)}
                     </h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(appointment.statut)}`}>
+                    <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium w-fit ${getStatusBadge(appointment.statut)}`}>
                       {getStatusLabel(appointment.statut)}
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
                     {appointment.therapist && (
                       <div>
                         <span className="font-medium">Thérapeute:</span>{' '}

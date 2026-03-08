@@ -134,7 +134,7 @@ const ProjectDocuments = () => {
           <Button variant="secondary" onClick={() => navigate('/donation/projects')} className="mb-2">
             ← Retour aux projets
           </Button>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Documents - {project?.nom}
           </h1>
         </div>

@@ -133,13 +133,13 @@ const Donations = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Donations</h1>
-        <div className="flex space-x-2">
-          <Button variant="secondary" onClick={() => window.location.href = '/donations/multi'}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Donations</h1>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button variant="secondary" onClick={() => window.location.href = '/donations/multi'} className="w-full sm:w-auto">
             Multi-Donations
           </Button>
-          <Button onClick={() => setShowForm(!showForm)}>
+          <Button onClick={() => setShowForm(!showForm)} className="w-full sm:w-auto">
             {showForm ? 'Annuler' : 'Faire une donation'}
           </Button>
         </div>
@@ -241,11 +241,11 @@ const Donations = () => {
       {/* Total des contributions */}
       <div className="card mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Total de mes contributions</h2>
-        <p className="text-3xl font-bold text-primary-600">{totalContributions.toFixed(2)} €</p>
+        <p className="text-2xl sm:text-3xl font-bold text-primary-600">{totalContributions.toFixed(2)} €</p>
       </div>
 
       {/* Mes contributions */}
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Mes Contributions</h2>
+      <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">Mes Contributions</h2>
       {contributions.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">Aucune contribution</p>

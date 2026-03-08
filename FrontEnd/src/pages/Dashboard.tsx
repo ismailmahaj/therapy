@@ -74,11 +74,11 @@ const Dashboard = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-8">Dashboard</h1>
 
       {error && <Error message={error} onRetry={loadData} />}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Card: Prochains RDV */}
         <div className="card">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Prochains Rendez-vous</h2>
@@ -121,7 +121,7 @@ const Dashboard = () => {
         <div className="card">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Vos Donations</h2>
           <div className="text-center py-8">
-            <p className="text-4xl font-bold text-primary-600 mb-2">
+            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-600 mb-2">
               {parseFloat(totalDonations).toFixed(2)} €
             </p>
             <p className="text-gray-600">Total des donations</p>
@@ -134,8 +134,8 @@ const Dashboard = () => {
 
       {/* Actions rapides */}
       <div className="card">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Actions rapides</h2>
-        <div className="flex flex-wrap gap-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Actions rapides</h2>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
           {isTherapyUser ? (
             <>
               <Link

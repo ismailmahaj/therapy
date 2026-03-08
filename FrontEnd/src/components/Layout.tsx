@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -10,6 +10,7 @@ const Layout = ({ children }: LayoutProps) => {
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -99,40 +100,57 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary-600">Therapy Center</h1>
+            {/* Logo + Menu button mobile */}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                aria-label="Toggle menu"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {sidebarOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary-600">Therapy Center</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
+            
+            {/* User info + Logout */}
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="hidden sm:flex items-center space-x-3">
                 <div className="text-right">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">
                     {user?.first_name} {user?.last_name}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 hidden md:block truncate max-w-[150px]">
                     {user?.email}
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor()}`}>
+                <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor()}`}>
                   {getUserRoleLabel()}
                 </span>
               </div>
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-600 hover:text-gray-900 px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
+                className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
               >
-                Déconnexion
+                <span className="hidden sm:inline">Déconnexion</span>
+                <span className="sm:hidden">🚪</span>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-sm min-h-[calc(100vh-4rem)]">
+      <div className="flex relative">
+        {/* Sidebar - Desktop */}
+        <aside className="hidden lg:block w-64 bg-white shadow-sm min-h-[calc(100vh-4rem)] sticky top-16">
           <nav className="p-4">
             <ul className="space-y-2">
               {navigation.map((item) => {
@@ -157,8 +175,43 @@ const Layout = ({ children }: LayoutProps) => {
           </nav>
         </aside>
 
+        {/* Sidebar - Mobile (Overlay) */}
+        {sidebarOpen && (
+          <>
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <aside className="fixed left-0 top-16 bottom-0 w-64 bg-white shadow-lg z-50 lg:hidden overflow-y-auto">
+              <nav className="p-4">
+                <ul className="space-y-2">
+                  {navigation.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <li key={item.path}>
+                        <Link
+                          to={item.path}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                            isActive
+                              ? 'bg-primary-50 text-primary-700 font-medium'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>{item.icon}</span>
+                          <span>{item.name}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+            </aside>
+          </>
+        )}
+
         {/* Main Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full min-w-0">
           {children}
         </main>
       </div>
