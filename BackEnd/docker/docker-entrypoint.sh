@@ -60,6 +60,12 @@ php artisan view:cache || true
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     echo "🗄️  Exécution des migrations..."
     php artisan migrate --force || echo "⚠️  Erreur lors des migrations (peut être normal si déjà exécutées)"
+    
+    # Exécuter les seeders (optionnel, peut être désactivé)
+    if [ "${RUN_SEEDERS:-true}" = "true" ]; then
+        echo "🌱 Exécution des seeders..."
+        php artisan db:seed --class=UserRoleSeeder --force || echo "⚠️  Erreur lors des seeders (peut être normal si déjà exécutés)"
+    fi
 fi
 
 # Créer les liens symboliques pour le stockage
