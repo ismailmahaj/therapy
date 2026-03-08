@@ -24,15 +24,17 @@ use App\Http\Controllers\Api\UserProfileController;
 |--------------------------------------------------------------------------
 */
 
-// Routes publiques
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
-
-// Route GET pour la vérification d'email (avec signature)
-Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])
-    ->middleware('signed')
-    ->name('verification.verify');
+// Routes publiques AVEC middleware CORS (nécessaire pour les requêtes cross-origin)
+Route::middleware([\App\Http\Middleware\CorsMiddleware::class])->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+    
+    // Route GET pour la vérification d'email (avec signature)
+    Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+        ->middleware('signed')
+        ->name('verification.verify');
+});
 
     // Routes protégées (nécessitent authentification)
     Route::middleware('auth:api')->group(function () {
