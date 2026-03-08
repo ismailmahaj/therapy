@@ -34,6 +34,7 @@ RUN apk add --no-cache \
 # --- Installation des dépendances de build (pour extensions PHP) ---
 RUN apk add --no-cache --virtual .build-deps \
     $PHPIZE_DEPS \
+    linux-headers \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
