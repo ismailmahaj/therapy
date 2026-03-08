@@ -22,11 +22,13 @@ return [
     'allowed_origins' => array_filter([
         env('FRONTEND_URL'),
         env('APP_URL'),
+        // URL frontend Railway (peut être supprimée car allowed_origins_patterns couvre déjà)
+        'https://therapy-production-4d33.up.railway.app',
         // En développement local
         env('APP_ENV') !== 'production' ? 'http://localhost:5173' : null,
         env('APP_ENV') !== 'production' ? 'http://localhost:8000' : null,
     ]),
-    
+  
     // Permettre toutes les origines Railway en production
     'allowed_origins_patterns' => [
         '#^https://.*\.up\.railway\.app$#',
